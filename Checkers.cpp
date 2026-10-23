@@ -2,11 +2,8 @@
 #include <windows.h>
 #include <string>
 #include <conio.h>
-#include <fcntl.h>
-#include <io.h>
 #include <stdio.h>
 #include <fstream>
-#include <locale>
 
 #define KEY_RIGHT 77
 #define KEY_LEFT  75
@@ -120,13 +117,13 @@ void clearPanel(HANDLE h) {
         fillChar(h, ' ', 56, row, 58);
     }
 }
-void panelPrint(HANDLE h, int row, const wstring& txt, WORD attr = C_TXT) {
+void panelPrint(HANDLE h, int row, const string& txt, WORD attr = C_TXT) {
     fillAttr(h, C_DARK, 56, row, 58);
     fillChar(h, ' ', 56, row, 58);
-    wstring s = (txt.length() > 55) ? txt.substr(0, 55) : txt;
+    string s = (txt.length() > 55) ? txt.substr(0, 55) : txt;
     SetConsoleTextAttribute(h, attr);
     moveTo(h, 57, row);
-    wcout << s;
+    cout << s;
     SetConsoleTextAttribute(h, 7);
 }
 void Drawmenu(HANDLE h, int k) {
@@ -144,11 +141,11 @@ void Drawmenu(HANDLE h, int k) {
         FillConsoleOutputAttribute(h, C_DARK, 58, p, &cnt);
         p.Y++;
     }
-    struct { int bx; int tx; int w; const wchar_t* name; } items[4] = {
-        { 62, 63,  7, L"Грати"  },
-        { 73, 74,  9, L"Правила"},
-        { 86, 87,  7, L"Автор"  },
-        { 98, 99,  7, L"Вихід"  }
+    struct { int bx; int tx; int w; const char* name; } items[4] = {
+        { 62, 63,  6, "Play" },
+        { 73, 74,  7, "Rules" },
+        { 86, 87,  8, "Author" },
+        { 98, 99,  6, "Exit" }
     };
     for (int i = 0; i < 4; i++) {
         WORD bg = (k == i + 1) ? C_LIGHT : C_DARK;
@@ -157,7 +154,7 @@ void Drawmenu(HANDLE h, int k) {
         fillAttr(h, bg, items[i].bx, 2, items[i].w);
         SetConsoleTextAttribute(h, attr);
         moveTo(h, items[i].tx, 2);
-        wcout << items[i].name;
+        cout << items[i].name;
     }
     SetConsoleTextAttribute(h, 7);
 }
@@ -167,52 +164,52 @@ static void waitEsc() {
 }
 void Author(HANDLE h) {
     clearPanel(h);
-    panelPrint(h, 8, L"", C_TXT);
-    panelPrint(h, 9, L"        Цю роботу створив студент", C_TXT);
-    panelPrint(h, 10, L"            Гнатюк Анатолій", C_TXT);
-    panelPrint(h, 12, L"        Натисніть Esc, щоб вийти в меню", C_HINT);
+    panelPrint(h, 8, "", C_TXT);
+    panelPrint(h, 9, "        This project was created by student", C_TXT);
+    panelPrint(h, 10, "            Hnatiuk Anatolii", C_TXT);
+    panelPrint(h, 12, "        Press Esc to return to the menu", C_HINT);
     waitEsc();
     clearPanel(h);
 }
 void Rules(HANDLE h) {
     clearPanel(h);
-    const wstring rul[] = {
-        L"Шашки — гра для двох гравців на дошці 8x8.",
-        L"12 білих і 12 чорних шашок на темних клітинах.",
-        L"Першими ходять БІЛІ.",
-        L"",
-        L"Звичайна шашка ходить вперед по діагоналі.",
-        L"При взятті — перестрибує через шашку суперника",
-        L"в будь-якому напрямку, якщо за нею є вільне поле.",
-        L"Биття ОБОВ'ЯЗКОВЕ. Після взяття — якщо можна",
-        L"бити ще — хід продовжується тією ж шашкою.",
-        L"",
-        L"Шашка в останньому ряді - ДАМКА (D).",
-        L"Дамка рухається по діагоналі на будь-яку відстань",
-        L"вперед і назад, б'є так само через суперника.",
-        L"",
-        L"Формат ходу:  a3-b4  (колонка A-H, ряд 1-8).",
-        L"'q' — вийти з поточної партії.",
-        L"",
-        L"   Натисніть Esc, щоб вийти в меню"
+    const string rul[] = {
+        "Checkers is a two-player game on an 8x8 board.",
+        "12 white and 12 black pieces on dark squares.",
+        "WHITE moves first.",
+        "",
+        "Regular pieces move diagonally forward.",
+        "When capturing, they jump over an opponent's piece",
+        "in any direction if the landing square is empty.",
+        "Capturing is MANDATORY. After a capture, if possible",
+        "to capture again, the turn continues with the same piece.",
+        "",
+        "A piece in the last row becomes a KING (D).",
+        "Kings move diagonally any distance",
+        "forward and backward, and capture opponents similarly.",
+        "",
+        "Move format:  a3-b4  (column A-H, row 1-8).",
+        "'q' to quit the current game.",
+        "",
+        "   Press Esc to return to the menu"
     };
     for (int i = 0; i < 18; i++) panelPrint(h, 5 + i, rul[i], C_TXT);
     waitEsc();
     clearPanel(h);
 }
-wstring getpl(HANDLE h, int player) {
+string getpl(HANDLE h, int player) {
     clearPanel(h);
     if (player == 1)
-        panelPrint(h, 10, L"Введіть ім'я гравця (БІЛІ):", C_TXT);
+        panelPrint(h, 10, "Enter player name (WHITE):", C_TXT);
     else
-        panelPrint(h, 10, L"Введіть ім'я гравця (ЧОРНІ):", C_TXT);
-    panelPrint(h, 11, L"", C_TXT);
+        panelPrint(h, 10, "Enter player name (BLACK):", C_TXT);
+    panelPrint(h, 11, "", C_TXT);
     fillAttr(h, C_TXT, 57, 11, 30);
     SetConsoleTextAttribute(h, C_TXT);
     showCursor(h, true);
     moveTo(h, 57, 11);
-    wstring name;
-    wcin >> name;
+    string name;
+    cin >> name;
     showCursor(h, false);
     SetConsoleTextAttribute(h, 7);
     return name;
@@ -226,13 +223,13 @@ public:
     COORD Getprev() { return prev; }
     COORD Getnext() { return next; }
 };
-bool parseMove(const wstring& s, point& p) {
-    if (s.length() < 5 || s[2] != L'-') return false;
-    wchar_t c1 = towlower(s[0]), c2 = towlower(s[3]);
-    if (c1 < L'a' || c1 > L'h' || c2 < L'a' || c2 > L'h') return false;
-    if (s[1] < L'1' || s[1] > L'8' || s[4] < L'1' || s[4] > L'8') return false;
-    short x1 = (short)(7 - (c1 - L'a')), y1 = (short)(s[1] - L'1');
-    short x2 = (short)(7 - (c2 - L'a')), y2 = (short)(s[4] - L'1');
+bool parseMove(const string& s, point& p) {
+    if (s.length() < 5 || s[2] != '-') return false;
+    char c1 = tolower(s[0]), c2 = tolower(s[3]);
+    if (c1 < 'a' || c1 > 'h' || c2 < 'a' || c2 > 'h') return false;
+    if (s[1] < '1' || s[1] > '8' || s[4] < '1' || s[4] > '8') return false;
+    short x1 = (short)(7 - (c1 - 'a')), y1 = (short)(s[1] - '1');
+    short x2 = (short)(7 - (c2 - 'a')), y2 = (short)(s[4] - '1');
     p.Setprev({ x1, y1 });
     p.Setnext({ x2, y2 });
     return true;
@@ -288,7 +285,7 @@ bool checkMove(int b[8][8], int pl, int x1, int y1, int x2, int y2, bool& cap, s
 bool pieceCanCapture(int b[8][8], int pl, int x, int y) {
     int piece = b[y][x];
     bool king = (piece == WHITE_KING || piece == BLACK_KING);
-    int dirs[4][2] = { {1,1},{1,-1},{-1,1},{-1,-1} };
+    int dirs[4][2] = { { 1,1 },{ 1,-1 },{ -1,1 },{ -1,-1 } };
     if (!king) {
         for (int d = 0; d < 4; d++) {
             int mx = x + dirs[d][0], my = y + dirs[d][1];
@@ -328,7 +325,7 @@ bool anyCapture(int b[8][8], int pl) {
     return false;
 }
 bool anyMove(int b[8][8], int pl) {
-    int dirs[4][2] = { {1,1},{1,-1},{-1,1},{-1,-1} };
+    int dirs[4][2] = { { 1,1 },{ 1,-1 },{ -1,1 },{ -1,-1 } };
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
             if (!isOwn(pl, b[y][x])) continue;
@@ -372,14 +369,14 @@ bool isDraw(int b[8][8]) {
     }
     return (wk == 1 && bk == 1 && other == 0);
 }
-void play(HANDLE h, wstring pl1, wstring pl2, int board[8][8]) {
+void play(HANDLE h, string pl1, string pl2, int board[8][8]) {
     DWORD cnt;
     COORD p;
     int  cur = 1;
     bool multiCap = false;
     short actX = -1, actY = -1;
-    wstring gameResult = L"Партія перервана";
-    wstring hist[500];
+    string gameResult = "Game interrupted";
+    string hist[500];
     int hCnt = 0;
     bool running = true;
     DrawBoard(h, board);
@@ -387,47 +384,47 @@ void play(HANDLE h, wstring pl1, wstring pl2, int board[8][8]) {
     fillAttr(h, C_GREY, 54, 4, 62);
     while (running) {
         clearPanel(h);
-        wstring info = (cur == 1)
-            ? (L"Хід БІЛИХ:  " + pl1)
-            : (L"Хід ЧОРНИХ: " + pl2);
+        string info = (cur == 1)
+            ? ("WHITE's turn: " + pl1)
+            : ("BLACK's turn: " + pl2);
         panelPrint(h, 5, info, C_TXT);
         if (multiCap) {
-            panelPrint(h, 6, L"Продовжуйте взяття тією ж шашкою!", C_WARN);
+            panelPrint(h, 6, "Continue capturing with the same piece!", C_WARN);
         }
         else if (anyCapture(board, cur)) {
-            panelPrint(h, 6, L"Є взяття — воно обов'язкове!", C_WARN);
+            panelPrint(h, 6, "Capture available — it is mandatory!", C_WARN);
         }
-        panelPrint(h, 8, L"Останні ходи:", C_HINT);
+        panelPrint(h, 8, "Recent moves:", C_HINT);
         int st = (hCnt > 6) ? hCnt - 6 : 0;
         for (int i = st; i < hCnt; i++) {
             int moveNum = i / 2 + 1;
-            wstring line;
+            string line;
             if (i % 2 == 0) {
-                wchar_t buf[32];
-                swprintf(buf, 32, L"%d. %ls", moveNum, hist[i].c_str());
+                char buf[32];
+                sprintf_s(buf, sizeof(buf), "%d. %s", moveNum, hist[i].c_str());
                 line = buf;
             }
             else {
-                wchar_t buf[32];
-                swprintf(buf, 32, L"   %ls", hist[i].c_str());
+                char buf[32];
+                sprintf_s(buf, sizeof(buf), "   %s", hist[i].c_str());
                 line = buf;
             }
             panelPrint(h, 9 + i - st, line, C_TXT);
         }
-        panelPrint(h, 17, L"Формат ходу: a3-b4", C_HINT);
-        panelPrint(h, 18, L"або 'q' — вийти з партії", C_TXT);
-        panelPrint(h, 20, L"Ваш хід: ", C_TXT);
+        panelPrint(h, 17, "Move format: a3-b4", C_HINT);
+        panelPrint(h, 18, "or 'q' to quit the game", C_TXT);
+        panelPrint(h, 20, "Your move: ", C_TXT);
         fillAttr(h, C_TXT, 66, 20, 10);
         showCursor(h, true);
-        moveTo(h, 66, 20);
+        moveTo(h, 68, 20);
         SetConsoleTextAttribute(h, C_TXT);
-        wstring inp;
-        wcin >> inp;
+        string inp;
+        cin >> inp;
         SetConsoleTextAttribute(h, 7);
         showCursor(h, false);
-        moveTo(h, 66, 20);
+        moveTo(h, 68, 20);
         for (int m = 0; m < 500; m++) {
-            wcout << " ";
+            cout << " ";
         }
         p = { 54, 0 };  FillConsoleOutputAttribute(h, C_GREY, 62, p, &cnt);
         p = { 54, 26 }; FillConsoleOutputAttribute(h, C_GREY, 62, p, &cnt);
@@ -441,37 +438,37 @@ void play(HANDLE h, wstring pl1, wstring pl2, int board[8][8]) {
         DrawBoard(h, board);
         Drawcheckers(h, board);
         fillAttr(h, C_GREY, 54, 4, 62);
-        if (wcin.fail()) {
-            wcin.clear();
-            wcin.ignore(1000, L'\n');
-            panelPrint(h, 22, L"Помилка читання! Спробуйте ще раз.", C_WARN);
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            panelPrint(h, 22, "Read error! Try again.", C_WARN);
             Sleep(1200);
             continue;
         }
-        if (inp == L"q" || inp == L"Q") {
+        if (inp == "q" || inp == "Q") {
             running = false;
             break;
         }
-        fillAttr(h, C_DARK, 65, 20, 49);
+        fillAttr(h, C_DARK, 67, 20, 47);
         for (int u = 21; u < 26; u++) {
             fillAttr(h, C_DARK, 56, u, 58);
         }
         point mv;
         if (!parseMove(inp, mv)) {
             fillAttr(h, C_GREY, 54, 4, 62);
-            panelPrint(h, 22, L"Помилка формату! Приклад: a3-b4", C_WARN);
+            panelPrint(h, 22, "Format error! Example: a3-b4", C_WARN);
             Sleep(1400);
             continue;
         }
         short x1 = mv.Getprev().X, y1 = mv.Getprev().Y;
         short x2 = mv.Getnext().X, y2 = mv.Getnext().Y;
         if (!isOwn(cur, board[y1][x1])) {
-            panelPrint(h, 22, L"Це не ваша шашка!", C_WARN);
+            panelPrint(h, 22, "This is not your piece!", C_WARN);
             Sleep(1400);
             continue;
         }
         if (multiCap && (x1 != actX || y1 != actY)) {
-            panelPrint(h, 22, L"Ви повинні бити активною шашкою!", C_WARN);
+            panelPrint(h, 22, "You must move the active piece!", C_WARN);
             Sleep(1400);
             continue;
         }
@@ -481,12 +478,12 @@ void play(HANDLE h, wstring pl1, wstring pl2, int board[8][8]) {
         bool cap = false;
         short cx = -1, cy = -1;
         if (!checkMove(board, cur, x1, y1, x2, y2, cap, cx, cy)) {
-            panelPrint(h, 22, L"Хід не за правилами!", C_WARN);
+            panelPrint(h, 22, "Illegal move!", C_WARN);
             Sleep(1400);
             continue;
         }
         if (mustCap && !cap) {
-            panelPrint(h, 22, L"Биття обов'язкове — оберіть хід із взяттям!", C_WARN);
+            panelPrint(h, 22, "Capture is mandatory — choose a capturing move!", C_WARN);
             Sleep(1600);
             continue;
         }
@@ -498,12 +495,12 @@ void play(HANDLE h, wstring pl1, wstring pl2, int board[8][8]) {
         if (cur == 1 && y2 == 7 && board[y2][x2] == WHITE_P) {
             board[y2][x2] = WHITE_KING;
             promoted = true;
-            panelPrint(h, 22, L"Шашка стала ДАМКОЮ!", C_OK);
+            panelPrint(h, 22, "Piece promoted to KING!", C_OK);
         }
         if (cur == 2 && y2 == 0 && board[y2][x2] == BLACK_P) {
             board[y2][x2] = BLACK_KING;
             promoted = true;
-            panelPrint(h, 22, L"Шашка стала ДАМКОЮ!", C_OK);
+            panelPrint(h, 22, "Piece promoted to KING!", C_OK);
         }
         DrawBoard(h, board);
         Drawcheckers(h, board);
@@ -518,11 +515,11 @@ void play(HANDLE h, wstring pl1, wstring pl2, int board[8][8]) {
             cur = (cur == 1) ? 2 : 1;
             if (isDraw(board)) {
                 clearPanel(h);
-                panelPrint(h, 10, L"           ==================================", C_HINT);
-                panelPrint(h, 11, L"                     НІЧИЯ! Дві дамки. ", C_HINT);
-                panelPrint(h, 12, L"           ==================================", C_HINT);
-                panelPrint(h, 14, L"                Натисніть будь-яку клавішу...", C_HINT);
-                gameResult = L"Нічия";
+                panelPrint(h, 10, "           ==================================", C_HINT);
+                panelPrint(h, 11, "                      DRAW! Two kings. ", C_HINT);
+                panelPrint(h, 12, "           ==================================", C_HINT);
+                panelPrint(h, 14, "               Press any key...", C_HINT);
+                gameResult = "Draw";
                 while (!_kbhit())Sleep(50);
                 _getch();
                 running = false;
@@ -530,33 +527,32 @@ void play(HANDLE h, wstring pl1, wstring pl2, int board[8][8]) {
             else if (!anyMove(board, cur)) {
                 clearPanel(h);
                 int winner = (cur == 1) ? 2 : 1;
-                wstring winName = (winner == 1) ? pl1 : pl2;
-                wstring winLine = winName + L" — ПЕРЕМОЖЕЦЬ!";
-                panelPrint(h, 10, L"================================", C_OK);
+                string winName = (winner == 1) ? pl1 : pl2;
+                string winLine = winName + " — WINNER!";
+                panelPrint(h, 10, "================================", C_OK);
                 panelPrint(h, 11, winLine, C_OK);
-                panelPrint(h, 12, L"================================", C_OK);
-                panelPrint(h, 14, L"Натисніть будь-яку клавішу...", C_TXT);
+                panelPrint(h, 12, "================================", C_OK);
+                panelPrint(h, 14, "Press any key...", C_TXT);
                 while (!_kbhit()) Sleep(50);
                 _getch();
                 gameResult = (winner == 1)
-                    ? (pl1 + L" (білі)-переможець")
-                    : (pl2 + L" (чорні)-переможець");
+                    ? (pl1 + " (white) - winner")
+                    : (pl2 + " (black) - winner");
                 running = false;
             }
         }
     }
     if (hCnt > 0) {
-        wofstream file("game_history.txt", ios::app);
-        file.imbue(locale(""));
-        file << L"=== " << pl1 << L" (білі) vs " << pl2 << L" (чорні) ===\n";
+        ofstream file("game_history.txt", ios::app);
+        file << "=== " << pl1 << " (white) vs " << pl2 << " (black) ===\n";
         for (int i = 0; i < hCnt; i++) {
-            if (i % 2 == 0) file << (i / 2 + 1) << L". ";
-            file << hist[i] << L"  ";
-            if (i % 2 == 1) file << L"\n";
+            if (i % 2 == 0) file << (i / 2 + 1) << ". ";
+            file << hist[i] << "  ";
+            if (i % 2 == 1) file << "\n";
         }
-        if (hCnt % 2 != 0) file << L"\n";
-        file << L"Результат: " << gameResult << L"\n";
-        file << L"================================\n\n";
+        if (hCnt % 2 != 0) file << "\n";
+        file << "Result: " << gameResult << "\n";
+        file << "================================\n\n";
         file.close();
     }
 }
@@ -574,10 +570,6 @@ void initBoard(int a[8][8]) {
     }
 }
 int main() {
-    SetConsoleCP(1251);
-    SetConsoleOutputCP(1251);
-    _setmode(_fileno(stdout), _O_U16TEXT);
-    _setmode(_fileno(stdin), _O_U16TEXT);
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
     SMALL_RECT sr = { 0, 0, 119, 29 };
     SetConsoleWindowInfo(h, TRUE, &sr);
@@ -612,8 +604,8 @@ int main() {
             case KEY_ENTER:
                 switch (t) {
                 case 1: {
-                    wstring p1 = getpl(h, 1);
-                    wstring p2 = getpl(h, 2);
+                    string p1 = getpl(h, 1);
+                    string p2 = getpl(h, 2);
                     initBoard(arr);
                     Draw123(h);
                     DrawAB(h);
